@@ -40,7 +40,7 @@ RUN \
   rm -rf base64c
 
 ## Add a user for build environment as it is not possible to build OpenWrt as root
-RUN useradd -ms /bin/bash -d /build build
+RUN groupadd -g 1001 build && useradd -u 1001 -g 1001 -ms /bin/bash -d /build build
 USER build
 ENV HOME="/build"
 
