@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .gitlab-ci
+          file: .gitlab-ci/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  prepare:
+    needs: docker
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}:latest
+    strategy:
+      matrix:
+        board: [mox, omnia, turris1x]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Prepare
+        run: |
+          ./compile_pkgs -t "${{ matrix.board }}" prepare
+
+  medkit:
+    needs: [docker, prepare]
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}:latest
+    strategy:
+      matrix:
+        board: [mox, omnia, turris1x]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Generate Medkit
+        run: |
+          ./generate_medkits -t "${{ matrix.board }}" $(. defaults.sh && [ "$PUBLISH_BRANCH" = "hbs" ] && echo -b hbk)
+          [ -f "generated_medkits/${{ matrix.board }}-medkit-latest.tar.gz" ]
+          [ -f "generated_medkits/${{ matrix.board }}-medkit-min-latest.tar.gz" ]
+
+  lists_generate:
+    needs: docker
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Generate lists
+        run: ./generate_lists --debug
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Generated package lists
+          path: generated_lists/*
