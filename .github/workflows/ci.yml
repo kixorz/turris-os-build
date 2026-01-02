@@ -48,6 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/${{ github.repository }}:latest
+      options: --user root
     strategy:
       matrix:
         board: [mox, omnia, turris1x]
@@ -63,6 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/${{ github.repository }}:latest
+      options: --user root
     strategy:
       matrix:
         board: [mox, omnia, turris1x]
@@ -80,6 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/${{ github.repository }}:latest
+      options: --user root
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
