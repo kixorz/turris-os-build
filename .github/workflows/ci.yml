@@ -61,7 +61,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Prepare
         run: |
-          docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ghcr.io/${{ github.repository }}:latest ./compile_pkgs -t "${{ matrix.board }}" prepare
+          docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ghcr.io/${{ github.repository }}:latest ./compile_pkgs -t "${{ matrix.board }}" prepare_tools
 
   build:
     needs: [docker, prepare]
