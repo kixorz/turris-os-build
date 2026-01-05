@@ -22,6 +22,9 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@v1.3.1
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -48,34 +51,32 @@ jobs:
   prepare:
     needs: docker
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/${{ github.repository }}:latest
-      options: --user 1001
     strategy:
       matrix:
         board: [mox, omnia, turris1x]
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@v1.3.1
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Prepare
         run: |
-          ./compile_pkgs -t "${{ matrix.board }}" prepare
+          docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ghcr.io/${{ github.repository }}:latest ./compile_pkgs -t "${{ matrix.board }}" prepare
 
   build:
     needs: [docker, prepare]
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/${{ github.repository }}:latest
-      options: --user 1001
     strategy:
       matrix:
         board: [mox, omnia, turris1x]
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@v1.3.1
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Build packages
         run: |
-          ./compile_pkgs -t "${{ matrix.board }}"
+          docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ghcr.io/${{ github.repository }}:latest ./compile_pkgs -t "${{ matrix.board }}"
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -85,20 +86,17 @@ jobs:
   medkit:
     needs: [docker, build]
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/${{ github.repository }}:latest
-      options: --user 1001
     strategy:
       matrix:
         board: [mox, omnia, turris1x]
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@v1.3.1
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Generate Medkit
         run: |
-          ./generate_medkits -t "${{ matrix.board }}" $(. defaults.sh && [ "$PUBLISH_BRANCH" = "hbs" ] && echo -b hbk)
-          [ -f "generated_medkits/${{ matrix.board }}-medkit-latest.tar.gz" ]
-          [ -f "generated_medkits/${{ matrix.board }}-medkit-min-latest.tar.gz" ]
+          docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ghcr.io/${{ github.repository }}:latest bash -c "./generate_medkits -t \"${{ matrix.board }}\" \$(. defaults.sh && [ \"\$PUBLISH_BRANCH\" = \"hbs\" ] && echo -b hbk) && [ -f \"generated_medkits/${{ matrix.board }}-medkit-latest.tar.gz\" ] && [ -f \"generated_medkits/${{ matrix.board }}-medkit-min-latest.tar.gz\" ]"
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -108,14 +106,14 @@ jobs:
   lists_generate:
     needs: build
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/${{ github.repository }}:latest
-      options: --user 1001
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@v1.3.1
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Generate lists
-        run: ./generate_lists --debug
+        run: |
+          docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ghcr.io/${{ github.repository }}:latest ./generate_lists --debug
       - name: Archive lists
         run: tar -czf updater-lists.tar.gz -C generated_lists .
       - name: Upload artifacts
@@ -139,7 +137,7 @@ jobs:
       - name: Prepare release files
         run: |
           mkdir release
-          find artifacts -type f -exec cp {} release/ \;
+          find artifacts -type f -exec mv {} release/ \;
 
       - name: Release
         uses: softprops/action-gh-release@v2
