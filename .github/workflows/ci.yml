@@ -61,8 +61,29 @@ jobs:
         run: |
           ./compile_pkgs -t "${{ matrix.board }}" prepare
 
-  medkit:
+  build:
     needs: [docker, prepare]
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository }}:latest
+      options: --user 1001
+    strategy:
+      matrix:
+        board: [mox, omnia, turris1x]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build packages
+        run: |
+          ./compile_pkgs -t "${{ matrix.board }}"
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Packages ${{ matrix.board }}
+          path: pkgsrepo/*
+
+  medkit:
+    needs: [docker, build]
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/${{ github.repository }}:latest
@@ -85,7 +106,7 @@ jobs:
           path: generated_medkits/*
 
   lists_generate:
-    needs: docker
+    needs: build
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/${{ github.repository }}:latest
