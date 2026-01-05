@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - '**'
+    tags:
+      - '**'
   pull_request:
     branches:
       - '**'
@@ -76,6 +78,11 @@ jobs:
           ./generate_medkits -t "${{ matrix.board }}" $(. defaults.sh && [ "$PUBLISH_BRANCH" = "hbs" ] && echo -b hbk)
           [ -f "generated_medkits/${{ matrix.board }}-medkit-latest.tar.gz" ]
           [ -f "generated_medkits/${{ matrix.board }}-medkit-min-latest.tar.gz" ]
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Medkit ${{ matrix.board }}
+          path: generated_medkits/*
 
   lists_generate:
     needs: docker
@@ -88,8 +95,34 @@ jobs:
         uses: actions/checkout@v4
       - name: Generate lists
         run: ./generate_lists --debug
+      - name: Archive lists
+        run: tar -czf updater-lists.tar.gz -C generated_lists .
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Generated package lists
-          path: generated_lists/*
+          path: updater-lists.tar.gz
+          
+  release:
+    needs: [medkit, lists_generate]
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare release files
+        run: |
+          mkdir release
+          find artifacts -type f -exec cp {} release/ \;
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          fail_on_unmatched_files: true
+          generate_release_notes: true
