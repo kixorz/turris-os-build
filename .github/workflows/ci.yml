@@ -11,11 +11,9 @@ on:
       - '**'
   workflow_dispatch:
 
-vars:
-  - name: registry
-    value: ghcr.io
-  - name: image_path
-    value: ghcr.io/${{ github.repository }}/${{ github.repository }}:${{ github.sha }}
+env:
+  REGISTRY: ghcr.io
+  IMAGE_URL: ghcr.io/${{ github.repository }}:${{ github.sha }}
 
 jobs:
   docker:
@@ -31,7 +29,7 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ vars.registry }}
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Docker Buildx
@@ -42,7 +40,7 @@ jobs:
           context: .gitlab-ci
           file: .gitlab-ci/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}
+          tags: ${{ env.IMAGE_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -50,7 +48,7 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
     container:
-      image: ${{ vars.image_path }}
+      image: ${{ env.IMAGE_URL }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -72,7 +70,7 @@ jobs:
     steps:
       - name: Build packages
         run: |
-          docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ${{ vars.image_path }} ./compile_pkgs -t "${{ matrix.board }}"
+          docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ${{ env.IMAGE_URL }} ./compile_pkgs -t "${{ matrix.board }}"
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -89,7 +87,7 @@ jobs:
     steps:
       - name: Generate Medkit
         run: |
-          docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ${{ vars.image_path }} bash -c "./generate_medkits -t \"${{ matrix.board }}\" \$(. defaults.sh && [ \"\$PUBLISH_BRANCH\" = \"hbs\" ] && echo -b hbk) && [ -f \"generated_medkits/${{ matrix.board }}-medkit-latest.tar.gz\" ] && [ -f \"generated_medkits/${{ matrix.board }}-medkit-min-latest.tar.gz\" ]"
+          docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ${{ env.IMAGE_URL }} bash -c "./generate_medkits -t \"${{ matrix.board }}\" \$(. defaults.sh && [ \"\$PUBLISH_BRANCH\" = \"hbs\" ] && echo -b hbk) && [ -f \"generated_medkits/${{ matrix.board }}-medkit-latest.tar.gz\" ] && [ -f \"generated_medkits/${{ matrix.board }}-medkit-min-latest.tar.gz\" ]"
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -103,7 +101,7 @@ jobs:
     steps:
       - name: Generate lists
         run: |
-          docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ${{ vars.image_path }} ./generate_lists --debug
+          docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ${{ env.IMAGE_URL }} ./generate_lists --debug
       - name: Archive lists
         run: tar -czf updater-lists.tar.gz -C generated_lists .
       - name: Upload artifacts
