@@ -13,7 +13,7 @@ on:
 
 jobs:
   docker:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     permissions:
       contents: read
       packages: write
@@ -42,7 +42,7 @@ jobs:
 
   build_package:
     needs: docker
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     container:
       image: ghcr.io/${{ github.repository }}:${{ github.sha }}
       credentials:
@@ -63,7 +63,7 @@ jobs:
 
   build_packages:
     needs: docker
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     container:
       image: ghcr.io/${{ github.repository }}:${{ github.sha }}
       credentials:
@@ -81,7 +81,7 @@ jobs:
 
   generate_lists:
     needs: docker
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     container:
       image: ghcr.io/${{ github.repository }}:${{ github.sha }}
       credentials:
