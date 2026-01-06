@@ -56,6 +56,9 @@ jobs:
       matrix:
         board: [mox, omnia, turris1x]
     steps:
+      - name: Debug
+        run: |
+          tree -L 3
       - name: Prepare
         run: |
           ./compile_pkgs -t "${{ matrix.board }}" prepare_tools
