@@ -14,6 +14,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  COMMIT_SHA: ${{ github.sha }}
 
 jobs:
   docker:
@@ -24,56 +25,50 @@ jobs:
     steps:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@v1.3.1
-
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .gitlab-ci
           file: .gitlab-ci/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
   prepare:
     needs: docker
     runs-on: ubuntu-latest
+    container:
+      image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GH_CONTAINER_REGISTRY_TOKEN }}
     strategy:
       matrix:
         board: [mox, omnia, turris1x]
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@v1.3.1
-      - name: Checkout repository
-        uses: actions/checkout@v4
       - name: Prepare
         run: |
-          docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ghcr.io/${{ github.repository }}:latest ./compile_pkgs -t "${{ matrix.board }}" prepare_tools
+          ./compile_pkgs -t "${{ matrix.board }}" prepare_tools
 
   build:
     needs: [docker, prepare]
+    if: contains(fromJSON('["hbk", "hbs", "hbd", "hbl"]'), github.ref_name)
     runs-on: ubuntu-latest
     strategy:
       matrix:
         board: [mox, omnia, turris1x]
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@v1.3.1
-      - name: Checkout repository
-        uses: actions/checkout@v4
       - name: Build packages
         run: |
           docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ghcr.io/${{ github.repository }}:latest ./compile_pkgs -t "${{ matrix.board }}"
@@ -91,10 +86,6 @@ jobs:
       matrix:
         board: [mox, omnia, turris1x]
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@v1.3.1
-      - name: Checkout repository
-        uses: actions/checkout@v4
       - name: Generate Medkit
         run: |
           docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ghcr.io/${{ github.repository }}:latest bash -c "./generate_medkits -t \"${{ matrix.board }}\" \$(. defaults.sh && [ \"\$PUBLISH_BRANCH\" = \"hbs\" ] && echo -b hbk) && [ -f \"generated_medkits/${{ matrix.board }}-medkit-latest.tar.gz\" ] && [ -f \"generated_medkits/${{ matrix.board }}-medkit-min-latest.tar.gz\" ]"
@@ -109,10 +100,6 @@ jobs:
     if: contains(fromJSON('["hbk", "hbs", "hbd", "hbl"]'), github.ref_name)
     runs-on: ubuntu-latest
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@v1.3.1
-      - name: Checkout repository
-        uses: actions/checkout@v4
       - name: Generate lists
         run: |
           docker run --rm --user 1001 -v ${{ github.workspace }}:/workspace -w /workspace ghcr.io/${{ github.repository }}:latest ./generate_lists --debug
