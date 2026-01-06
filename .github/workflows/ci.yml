@@ -48,7 +48,7 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
     container:
-      image: ${{ env.IMAGE_URL }}
+      image: ghcr.io/${{ github.repository }}:${{ github.sha }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
