@@ -58,7 +58,7 @@ jobs:
     steps:
       - name: Debug
         run: |
-          tree -L 3
+          ls -la
       - name: Prepare
         run: |
           ./compile_pkgs -t "${{ matrix.board }}" prepare_tools
