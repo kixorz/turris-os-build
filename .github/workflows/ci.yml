@@ -40,7 +40,7 @@ jobs:
           context: .gitlab-ci
           file: .gitlab-ci/Dockerfile
           push: true
-          tags: ${{ env.IMAGE_URL }}
+          tags: ghcr.io/${{ github.repository }}:base
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -48,7 +48,7 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/${{ github.repository }}:${{ github.sha }}
+      image: ghcr.io/${{ github.repository }}:base
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -56,9 +56,8 @@ jobs:
       matrix:
         board: [mox, omnia, turris1x]
     steps:
-      - name: Debug
-        run: |
-          ls -la
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Prepare
         run: |
           ./compile_pkgs -t "${{ matrix.board }}" prepare_tools
