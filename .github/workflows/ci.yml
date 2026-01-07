@@ -57,7 +57,8 @@ jobs:
           ./compile_pkgs prepare_tools -t "${{ matrix.board }}"
       - name: Build Package
         run: |
-          # TODO
+          # TODO build
+          # make package/hostlog/compile
 
   build_packages:
     needs: docker
