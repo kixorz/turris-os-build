@@ -40,7 +40,7 @@ jobs:
 
   build_package:
     needs: docker
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     container:
       image: ghcr.io/${{ github.repository }}:${{ github.sha }}
       credentials:
@@ -62,7 +62,7 @@ jobs:
 
   build_packages:
     needs: docker
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     container:
       image: ghcr.io/${{ github.repository }}:${{ github.sha }}
       credentials:
@@ -80,7 +80,7 @@ jobs:
 
   generate_lists:
     needs: docker
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     container:
       image: ghcr.io/${{ github.repository }}:${{ github.sha }}
       credentials:
