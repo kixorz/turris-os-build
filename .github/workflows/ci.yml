@@ -76,7 +76,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Build Packages
         run: |
-          ./compile_pkgs -t "${{ matrix.board }}"
+          ./compile_pkgs -j1 -a V=s -t "${{ matrix.board }}"
 
   generate_lists:
     needs: docker
