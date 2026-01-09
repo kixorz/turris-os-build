@@ -52,8 +52,6 @@ jobs:
       matrix:
         board: [mox, omnia, turris1x]
     steps:
-      - name: Free Disk Space
-        uses: jlumbroso/free-disk-space@main
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Prepare Tools
@@ -65,6 +63,7 @@ jobs:
           # make package/hostlog/compile
 
   build_packages:
+    if: false
     needs: docker
     runs-on: ubuntu-latest
     container:
@@ -76,8 +75,6 @@ jobs:
       matrix:
         board: [ mox, omnia, turris1x ]
     steps:
-      - name: Free Disk Space
-        uses: jlumbroso/free-disk-space@main
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Build Packages
@@ -85,6 +82,7 @@ jobs:
           ./compile_pkgs -j1 -a V=s -t "${{ matrix.board }}"
 
   generate_lists:
+    if: false
     needs: docker
     runs-on: ubuntu-latest
     container:
@@ -93,8 +91,6 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Free Disk Space
-        uses: jlumbroso/free-disk-space@main
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Generate lists
