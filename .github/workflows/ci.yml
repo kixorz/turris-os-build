@@ -18,6 +18,8 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Log in to the Container registry
@@ -50,6 +52,8 @@ jobs:
       matrix:
         board: [mox, omnia, turris1x]
     steps:
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Prepare Tools
@@ -72,6 +76,8 @@ jobs:
       matrix:
         board: [ mox, omnia, turris1x ]
     steps:
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Build Packages
@@ -87,6 +93,8 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Generate lists
