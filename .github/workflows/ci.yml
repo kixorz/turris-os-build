@@ -54,12 +54,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Prepare Tools
+      - name: Prepare Buildroot
         run: |
-          ./compile_pkgs prepare_tools -t "${{ matrix.board }}"
+          ./compile_pkgs prepare -t "${{ matrix.board }}"
       - name: Build Package
         run: |
-          make package/feeds/hostlog/hostlog/compile
+          cd ./build
+          ./scripts/feeds install hostlog
+          make package/hostlog/compile
 
   build_packages:
     if: false
