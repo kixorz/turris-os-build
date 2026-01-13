@@ -57,10 +57,6 @@ jobs:
       - name: Prepare Tools
         run: |
           ./compile_pkgs prepare_tools -t "${{ matrix.board }}"
-      - name: Install Package
-        run: |
-          ./scripts/feeds update hostlog
-          ./scripts/feeds install hostlog
       - name: Build Package
         run: |
           make package/hostlog/compile
