@@ -59,7 +59,7 @@ jobs:
           ./compile_pkgs prepare_tools -t "${{ matrix.board }}"
       - name: Build Package
         run: |
-          make package/hostlog/compile
+          make package/feeds/hostlog/hostlog/compile
 
   build_packages:
     if: false
