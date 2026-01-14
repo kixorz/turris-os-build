@@ -56,12 +56,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Prepare SDK with Toolchain
         run: |
-          ./compile_pkgs prepare_tools -t "${{ matrix.board }}"
+          ./compile_pkgs prepare compile_tools -t "${{ matrix.board }}"
       - name: Build Package
         run: |
           cd ./build
           ./scripts/feeds install hostlog
-          make package/hostlog/compile
+          make package/hostlog/compile -j1 V=s
 
   build_packages:
     if: false
