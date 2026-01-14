@@ -54,9 +54,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Prepare Buildroot
+      - name: Prepare SDK with Toolchain
         run: |
-          ./compile_pkgs prepare -t "${{ matrix.board }}"
+          ./compile_pkgs prepare_tools -t "${{ matrix.board }}"
       - name: Build Package
         run: |
           cd ./build
