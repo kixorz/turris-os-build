@@ -50,7 +50,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       matrix:
-        board: [mox, omnia, turris1x]
+        board: [mox, omnia]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
