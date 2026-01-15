@@ -61,7 +61,7 @@ jobs:
         run: |
           cd ./build
           ./scripts/feeds install hostlog
-          make package/hostlog/compile
+          make package/hostlog/compile -j1 V=s
 
   build_packages:
     if: false
