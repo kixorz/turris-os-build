@@ -1,0 +1,2 @@
+# Following lines contains device specific feeds:
+src-git-full video https://openwrt.turris.cz/feed/video.git;openwrt-24.10

@@ -1,3 +1,67 @@
+9.1.0
+-----
+
+🚀 New Features
+  • omnia-ng: Updated kernel and acceleration modules
+  • knot-resolver6: Run using the manager
+
+📌 Updates
+  • peacockr: Version 0.3.0 with more functions
+  • packages: Unfroze OpenWrt feeds -> many upstream updates
+
+9.0.6
+-----
+
+📌 Updates
+  • curl: Update to versoion 8.20.0 - fixes several security issues
+  • kernel: Update to versoion 6.6.137 - fixes Copy Fail (CVE-2026-31431)
+
+🐛 Bug Fixes
+  • foris-controller-librespeed: Use our mirror of servers without https fixing speed measurements on Omnia
+
+9.0.5
+-----
+
+🚀 New Features
+  • omnia-ng: Support global LED brightness in sysfs
+
+📌 Updates
+  • foris-controller: Update to versoion 6.3.1 - limit wifi channel width on 5GHz
+  • uriparser: Update to version 1.0.0 - fixes CVE-2025-67899
+  • expat: Update to version 2.7.5 - fixes CVE-2025-59375, CVE-2026-24515, CVE-2026-25210, CVE-2026-32777, CVE-2026-32778
+  • openssh: Update to version 10.3 - fixes CVE-2026-35414, CVE-2026-35385, CVE-2026-35386, CVE-2026-35387, CVE-2026-35388
+  • samba4: Update to version 4.22.9
+
+🐛 Bug Fixes
+  • omnia-ng: Fallback mode for SFPs with unsupported PHY
+  • kernel: fix Ubiquiti U-Fiber Instant SFPs support
+
+9.0.4
+-----
+
+🚀 New Features
+  • omnia-ng: Report unsupported SFP in dmesg
+
+🐛 Bug Fixes
+  • omnia: Always include support for MKL MCU
+  • omnia-ng: Fix possible conflicts between LED and display
+  • sshoxy: Reap zombies more thoroughly
+  • ssh: Improve compatibility with ssh-copy-id
+  • sentinel-dynfw-c-client: More robust reconnects
+
+9.0.3
+-----
+
+🚀 New Features
+  • knot-resolver6: update to stable version 6.1.0
+  • lighttpd: require TLS 1.2 and use EC for new certificates
+  • add support for Lantech 8330-265D and Ubiquiti U-Fiber Instant SFPs
+
+🐛 Bug Fixes
+  • omnia-ng: improve SFP compatibility
+  • omnia-ng: improve 2.4 GHz Wi-Fi range
+  • omnia-ng: improve LED brightness setup (thanks to CrumblyLiquid)
+
 9.0.2
 -----
 
